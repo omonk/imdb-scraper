@@ -41,7 +41,7 @@ function getMovieInfo(i) {
             });
         });
         getMovieInfo(i + 1);
-    });   
+    }).catch(err => console.log(err));
 }
 
-getMovieInfo(14);
+getMovieInfo(1);
