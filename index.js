@@ -6,7 +6,8 @@ const fetch = require("node-fetch");
 
 let current = 1;
 const max = 7500000;
-const range = 50;
+const range = 100;
+const timeoutLimit = 1000;
 
 // const fetchIMDB = (index) => {
 //     return fetch(`http://www.imdb.com/title/${id(index)}`)
@@ -24,19 +25,21 @@ const id = (i) => {
     return str;
 };
 
+
 const fetchAPI = (index) => {
     console.time(`${index}`);
     return imdb.getReq({
         id: `${id(index)}`,
         opts: {
             apiKey: "f8b951c9",
-            timeout: 2000
+            timeout: timeoutLimit
         }
     }).then((res) => {
         console.timeEnd(`${index}`);
         return res;
     }).catch(err => {
         console.log(`REQEUST TIMEOUT: ${index}`);
+        fs.appendFileSync("error.txt", `${index}\n`);
         return {
             id: index,
             message: "timeout",
@@ -51,16 +54,27 @@ function getMovieInfo(index) {
         .then(response  => {
             const movie = response;
             new Promise((resolve,reject)=> {
-                // console.log(`${movie.title}`);
                 fs.writeFile(`movies${index}.json`, stringify(movie), (err) => {
                     if (err) reject(err);
+                    if (index % 1000 - 1 === 0) {
+                        console.log(`
+                        
+                        
+                        THOUSAND
+                        
+                        
+                        `);
+                        console.timeEnd("thousand timer");
+                    }
                     resolve(movie);
                 });
             });
+            console.time("thousand timer");
             getMovieInfo(index + range);
         }).catch(err => console.log(err));
 }
 
+console.time("thousand timer");
 getMovieInfo(current);
 
 // function requestLogger(httpModule){
